@@ -39,6 +39,21 @@ test("provides a healthy Render health-check response", async () => {
     assert.deepEqual(await response.json(), { status: "ok" });
 });
 
+test("allows the GitHub Pages site to submit cross-origin contact requests", async () => {
+    const response = await fetch(`${baseUrl}/api/contact`, {
+        method: "OPTIONS",
+        headers: {
+            Origin: "https://jhocelbduga.github.io",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type"
+        }
+    });
+
+    assert.equal(response.status, 204);
+    assert.equal(response.headers.get("access-control-allow-origin"), "https://jhocelbduga.github.io");
+    assert.equal(response.headers.get("access-control-allow-methods"), "POST");
+});
+
 test("does not expose backend source or configuration files", async () => {
     const [serverSource, packageManifest] = await Promise.all([
         fetch(`${baseUrl}/server.js`),

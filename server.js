@@ -33,6 +33,22 @@ function createApp(options = {}) {
     const recipient = options.recipient || contactRecipient;
 
     app.disable("x-powered-by");
+    app.use((request, response, next) => {
+        const allowedOrigin = "https://jhocelbduga.github.io";
+
+        if (request.get("Origin") === allowedOrigin) {
+            response.set("Access-Control-Allow-Origin", allowedOrigin);
+            response.set("Vary", "Origin");
+
+            if (request.method === "OPTIONS") {
+                response.set("Access-Control-Allow-Methods", "POST");
+                response.set("Access-Control-Allow-Headers", "Content-Type");
+                return response.sendStatus(204);
+            }
+        }
+
+        return next();
+    });
     app.use(express.json({ limit: "10kb" }));
     app.use("/api/contact", rateLimit({
         windowMs: 15 * 60 * 1000,
